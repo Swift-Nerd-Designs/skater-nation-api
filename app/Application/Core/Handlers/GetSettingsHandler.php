@@ -37,6 +37,8 @@ final class GetSettingsHandler
             'nav_items', 'nav_cta_label', 'nav_cta_href', 'nav_align',
             // Newsletter
             'newsletters_enabled',
+            // Theme
+            'active_theme',
         ]);
     }
 }

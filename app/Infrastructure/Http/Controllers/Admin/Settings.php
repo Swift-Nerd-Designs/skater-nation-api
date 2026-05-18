@@ -31,6 +31,8 @@ class Settings extends BaseController
         'nav_items', 'nav_cta_label', 'nav_cta_href', 'nav_align',
         // Newsletter
         'newsletters_enabled',
+        // Theme
+        'active_theme',
     ];
 
     /** Keys that are write-only — returned as '••••••••' when set, empty string when not set. */
