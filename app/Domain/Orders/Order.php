@@ -60,7 +60,7 @@ final class Order
             shipping:         Money::fromCents((int)($row['shipping_cents']  ?? 0), $currency),
             total:            Money::fromCents((int)($row['total_cents']     ?? 0), $currency),
             currency:         $currency,
-            status:           OrderStatus::from($row['status'] ?? 'pending'),
+            status:           OrderStatus::tryFrom($row['status'] ?? '') ?? OrderStatus::Pending,
             paymentGateway:   isset($row['payment_gateway'])
                 ? PaymentGateway::tryFrom($row['payment_gateway'])
                 : null,

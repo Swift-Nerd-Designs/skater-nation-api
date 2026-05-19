@@ -169,3 +169,8 @@ $routes->delete('admin/documents/(:num)', '\App\Infrastructure\Http\Controllers\
 // ── Admin: Newsletter Subscribers ─────────────────────────────────────────
 $routes->get(   'admin/newsletter/subscribers',        '\App\Infrastructure\Http\Controllers\Admin\NewsletterSubscribers::index',       ['filter' => 'adminonlyauth']);
 $routes->delete('admin/newsletter/subscribers/(:num)', '\App\Infrastructure\Http\Controllers\Admin\NewsletterSubscribers::delete/$1',    ['filter' => 'adminonlyauth']);
+
+// ── Admin: Backup / Restore / Factory Reset ────────────────────────────────
+$routes->post('admin/backup/create',        '\App\Infrastructure\Http\Controllers\Admin\Backup::create',       ['filter' => 'adminonlyauth']);
+$routes->post('admin/backup/restore',       '\App\Infrastructure\Http\Controllers\Admin\Backup::restore',      ['filter' => 'adminonlyauth']);
+$routes->post('admin/backup/factory-reset', '\App\Infrastructure\Http\Controllers\Admin\Backup::factoryReset', ['filter' => 'adminonlyauth']);

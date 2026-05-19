@@ -38,6 +38,10 @@ class Settings extends BaseController
         // Shop landing
         'shop_hero_image', 'shop_hero_headline', 'shop_hero_tagline',
         'shop_specials_title', 'shop_specials_category',
+        // Contact page
+        'contact_map_embed_url',
+        'contact_hero_eyebrow', 'contact_hero_title', 'contact_hero_body', 'contact_hero_image',
+        'contact_form_heading', 'contact_form_subtext', 'contact_service_options',
     ];
 
     /** Keys that are write-only — returned as '••••••••' when set, empty string when not set. */
