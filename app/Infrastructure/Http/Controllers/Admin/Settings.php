@@ -15,6 +15,7 @@ class Settings extends BaseController
         'shop_enabled', 'shop_mode', 'shop_featured_product_slug',
         'shop_currency', 'shop_vat_enabled', 'shop_vat_rate',
         'shop_shipping_rate', 'shop_free_shipping_from',
+        'shop_guest_checkout',
         'shop_notification_email', 'shop_low_stock_alert_email',
         'shop_payfast_enabled', 'shop_payfast_merchant_id',
         'shop_payfast_merchant_key', 'shop_payfast_passphrase',

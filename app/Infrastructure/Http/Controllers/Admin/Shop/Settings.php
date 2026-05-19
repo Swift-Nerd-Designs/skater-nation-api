@@ -32,6 +32,7 @@ class Settings extends BaseController
         'shop_ozow_private_key',
         'shop_ozow_api_key',
         'shop_wishlist_enabled',
+        'shop_guest_checkout',
     ];
 
     private const SENSITIVE_KEYS = [
