@@ -39,6 +39,11 @@ final class GetSettingsHandler
             'newsletters_enabled',
             // Theme
             'active_theme',
+            // Transitions
+            'page_transition', 'page_transition_speed',
+            // Shop landing
+            'shop_hero_image', 'shop_hero_headline', 'shop_hero_tagline',
+            'shop_specials_title', 'shop_specials_category',
         ]);
     }
 }
