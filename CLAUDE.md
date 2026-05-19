@@ -236,3 +236,8 @@ Skills are stored in `.claude/skills/` within this project directory. Always res
 - `/shortcut` — for creating and managing Shortcut epics and stories with GitHub branch enforcement (defined in `client-api/.claude/skills/`)
 
 **Rule:** When a skill is invoked inside `client-api/`, all file reads, writes, and commands execute relative to `client-api/`. Skills must never assume or change the working directory to a parent or sibling repo (`client-site/`, `client-template/`, etc.) unless the skill description explicitly states cross-repo scope.
+
+## Template Versioning
+- Current version: see `.template-version`
+- Upgrade guide: `.claude/CHANGELOG.md`
+- Consumer forks use `/upgrade` skill to apply new versions
