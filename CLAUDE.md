@@ -1,9 +1,28 @@
-# Client API — CodeIgniter 4
+# Skater Nation API — CodeIgniter 4
+
+## Client
+**Skater Nation (SN)** — South African independent skateboard brand. Founded 2016, based in Secunda, Mpumalanga. Youth-led, grassroots SA skate culture brand.
+
+### Shop Products (seed these — 3 items only)
+1. SN Branded Black Grip Sheet
+2. SN Branded White Grip Sheet
+3. Size 8 Canadian Maple Deck
+
+### Brand Network (for email copy, order confirmations, etc.)
+- Key ambassadors: **Boipelo Awuah**, **Khule Ngubane**, **SSS (Soweto Skate Society)**
+- Ltd editions exist (Darth Manny, Space Shredder w/ MP Skate) — these are brand history, not shop products
+
+### Naming Conventions (per template fingerprinting rule)
+- Admin session cookie: `sn_admin_session`
+- Customer session cookie: `sn_customer_session`
+- Admin route prefix: `/admin` (confirm with client if custom slug needed)
+
+---
 
 ## Stack
 CodeIgniter 4 PHP REST API. Layered architecture: Domain → Application → Infrastructure. Explicit routes only.
 - Backend: PHP (CodeIgniter 4 with repository pattern)
-- Frontend: Nuxt.js (TypeScript) — see client-site/
+- Frontend: Nuxt.js (TypeScript) — see skater-nation-site/
 - Services: Cloudinary for images, email integration
 - Always follow the repository/service pattern for all code.
 

@@ -16,7 +16,7 @@ class AdminOnlyAuth implements FilterInterface
     public function before(RequestInterface $request, $arguments = null)
     {
         /** @var \CodeIgniter\HTTP\IncomingRequest $request */
-        $token = $request->getCookie('jnv_admin_session');
+        $token = $request->getCookie('sn_admin_session');
 
         if (empty($token)) {
             return $this->unauthorized('Unauthorized');
@@ -25,7 +25,7 @@ class AdminOnlyAuth implements FilterInterface
         $session = service('adminSessionRepository')->find($token);
 
         if ($session === null) {
-            service('response')->deleteCookie('jnv_admin_session');
+            service('response')->deleteCookie('sn_admin_session');
             return $this->unauthorized('Session expired');
         }
 

@@ -45,7 +45,7 @@ class Auth extends BaseController
         }
 
         set_cookie([
-            'name'     => 'jnv_admin_session',
+            'name'     => 'sn_admin_session',
             'value'    => $result['token'],
             'expire'   => 86400,
             'secure'   => (ENVIRONMENT === 'production'),
@@ -58,11 +58,11 @@ class Auth extends BaseController
 
     public function logout(): \CodeIgniter\HTTP\ResponseInterface
     {
-        $token = get_cookie('jnv_admin_session');
+        $token = get_cookie('sn_admin_session');
         if (!empty($token)) {
             service('adminSessionRepository')->delete($token);
         }
-        delete_cookie('jnv_admin_session');
+        delete_cookie('sn_admin_session');
         return $this->ok();
     }
 
