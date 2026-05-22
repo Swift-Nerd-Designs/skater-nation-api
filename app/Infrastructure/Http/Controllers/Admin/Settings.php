@@ -36,8 +36,11 @@ class Settings extends BaseController
         'active_theme',
         // Transitions
         'page_transition', 'page_transition_speed',
+        // Home hero
+        'site_hero_image',
         // Shop landing
-        'shop_hero_image', 'shop_hero_headline', 'shop_hero_tagline',
+        'shop_hero_image', 'shop_hero_image_2', 'shop_hero_image_3',
+        'shop_hero_headline', 'shop_hero_tagline',
         'shop_specials_title', 'shop_specials_category',
         // Contact page
         'contact_map_embed_url',
