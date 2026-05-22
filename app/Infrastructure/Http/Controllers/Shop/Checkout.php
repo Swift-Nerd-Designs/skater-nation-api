@@ -58,7 +58,7 @@ class Checkout extends BaseController
 
         // ── 4. Resolve optional customer (logged-in users link order to account) ──
         $customerId = null;
-        $token = $this->request->getCookie('jnv_customer_session');
+        $token = $this->request->getCookie('sn_customer_session');
         if (!$token) {
             $header = $this->request->getHeaderLine('Authorization');
             $token  = str_starts_with($header, 'Bearer ') ? substr($header, 7) : null;

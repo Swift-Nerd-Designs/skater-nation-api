@@ -8,7 +8,7 @@ use CodeIgniter\HTTP\ResponseInterface;
 
 /**
  * Authenticates shop customers.
- * Reads jnv_customer_session httpOnly cookie first,
+ * Reads sn_customer_session httpOnly cookie first,
  * falls back to Authorization: Bearer header for backward compat.
  * Sets CustomerAuthContext for use by controllers.
  */
@@ -19,7 +19,7 @@ class CustomerAuth implements FilterInterface
         /** @var \CodeIgniter\HTTP\IncomingRequest $request */
 
         // 1. httpOnly cookie (preferred)
-        $token = $request->getCookie('jnv_customer_session');
+        $token = $request->getCookie('sn_customer_session');
 
         // 2. Bearer header fallback
         if (empty($token)) {
@@ -34,7 +34,7 @@ class CustomerAuth implements FilterInterface
         $customer = service('customerRepository')->findByToken($token);
 
         if (!$customer) {
-            service('response')->deleteCookie('jnv_customer_session');
+            service('response')->deleteCookie('sn_customer_session');
             return $this->unauthorized('Session expired or invalid.');
         }
 

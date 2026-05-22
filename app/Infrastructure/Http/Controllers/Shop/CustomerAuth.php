@@ -97,14 +97,14 @@ class CustomerAuth extends BaseController
     public function logout(): \CodeIgniter\HTTP\ResponseInterface
     {
         // Read token from cookie or Bearer header (filter not applied to this route)
-        $token = $this->request->getCookie('jnv_customer_session')
+        $token = $this->request->getCookie('sn_customer_session')
               ?? $this->getBearerToken();
 
         if ($token) {
             service('logoutCustomerHandler')->handle(new LogoutCustomerCommand($token));
         }
 
-        $this->response->deleteCookie('jnv_customer_session');
+        $this->response->deleteCookie('sn_customer_session');
 
         return $this->ok();
     }
@@ -181,7 +181,7 @@ class CustomerAuth extends BaseController
     private function setCustomerCookie(string $token): void
     {
         $this->response->setCookie([
-            'name'     => 'jnv_customer_session',
+            'name'     => 'sn_customer_session',
             'value'    => $token,
             'expire'   => 30 * 24 * 3600,
             'path'     => '/',

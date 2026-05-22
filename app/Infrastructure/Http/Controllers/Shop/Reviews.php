@@ -114,7 +114,7 @@ class Reviews extends BaseController
     private function getBearerToken(): ?string
     {
         // httpOnly cookie first, Bearer header as fallback
-        $cookie = $this->request->getCookie('jnv_customer_session');
+        $cookie = $this->request->getCookie('sn_customer_session');
         if (!empty($cookie)) return $cookie;
 
         $header = $this->request->getHeaderLine('Authorization');
