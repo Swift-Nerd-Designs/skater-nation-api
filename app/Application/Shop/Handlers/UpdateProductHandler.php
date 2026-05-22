@@ -50,7 +50,8 @@ final class UpdateProductHandler
             stockQty:          $cmd->stockQty     ?? $existing->stockQty,
             lowStockThreshold: $cmd->lowStockThreshold ?? $existing->lowStockThreshold,
             landingContent:    $cmd->setLandingContent ? $cmd->landingContent : $existing->landingContent,
-            active:            $cmd->active       ?? $existing->active,
+            active:            $cmd->active        ?? $existing->active,
+            isComingSoon:      $cmd->isComingSoon  ?? $existing->isComingSoon,
         );
 
         return $this->products->save($product);

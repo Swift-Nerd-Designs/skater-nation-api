@@ -17,6 +17,7 @@ final class UpdateProductCommand
         public readonly bool    $setCategoryId     = false,
         public readonly ?int    $categoryId        = null,
         public readonly ?bool   $active            = null,
+        public readonly ?bool   $isComingSoon      = null,
         public readonly bool    $setLandingContent = false,
         public readonly ?array  $landingContent    = null,
     ) {}

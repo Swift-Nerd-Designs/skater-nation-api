@@ -75,6 +75,7 @@ class Products extends BaseController
             'category_slug'       => $p->categorySlug,
             'in_stock'            => $p->inStock(),
             'low_stock'           => $p->isLowStock(),
+            'is_coming_soon'      => $p->isComingSoon,
             'cover_image'         => $p->coverImage,
         ];
     }

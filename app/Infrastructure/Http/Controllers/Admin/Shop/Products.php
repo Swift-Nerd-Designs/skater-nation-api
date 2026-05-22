@@ -100,7 +100,8 @@ class Products extends BaseController
                 setCategoryId:     array_key_exists('category_id', $body),
                 categoryId:        array_key_exists('category_id', $body) && $body['category_id'] !== null
                                        ? (int) $body['category_id'] : null,
-                active:            isset($body['active']) ? (bool) $body['active'] : null,
+                active:            isset($body['active'])          ? (bool) $body['active']          : null,
+                isComingSoon:      isset($body['is_coming_soon'])   ? (bool) $body['is_coming_soon']   : null,
                 setLandingContent: array_key_exists('landing_content', $body),
                 landingContent:    $body['landing_content'] ?? null,
             ));
@@ -289,6 +290,7 @@ class Products extends BaseController
             'stock_qty'           => $p->stockQty,
             'low_stock_threshold' => $p->lowStockThreshold,
             'active'              => $p->active,
+            'is_coming_soon'      => $p->isComingSoon,
             'in_stock'            => $p->inStock(),
             'low_stock'           => $p->isLowStock(),
             'category_id'         => $p->categoryId,

@@ -23,6 +23,7 @@ final class Product
         public readonly int     $lowStockThreshold,
         public readonly ?array  $landingContent,
         public readonly bool    $active,
+        public readonly bool    $isComingSoon   = false,
         public readonly ?string $categoryName   = null,
         public readonly ?string $categorySlug   = null,
         public readonly ?\DateTimeImmutable $lowStockAlertedAt = null,
@@ -45,7 +46,8 @@ final class Product
             landingContent:    isset($row['landing_content'])
                 ? (is_string($row['landing_content']) ? json_decode($row['landing_content'], true) : $row['landing_content'])
                 : null,
-            active:            (bool) ($row['active'] ?? true),
+            active:            (bool) ($row['active']          ?? true),
+            isComingSoon:      (bool) ($row['is_coming_soon'] ?? false),
             categoryName:             $row['category_name']        ?? null,
             categorySlug:             $row['category_slug']        ?? null,
             lowStockAlertedAt: isset($row['low_stock_alerted_at'])
