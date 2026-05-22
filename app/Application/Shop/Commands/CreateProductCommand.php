@@ -15,6 +15,7 @@ final class CreateProductCommand
         public readonly int     $lowStockThreshold = 5,
         public readonly ?int    $categoryId     = null,
         public readonly bool    $active         = true,
+        public readonly bool    $isComingSoon   = false,
         public readonly ?array  $landingContent = null,
     ) {}
 }

@@ -50,7 +50,7 @@ class MySqlProductRepository extends AbstractMysqlRepository implements ProductR
         $builder = $this->db->table('shop_products p')
             ->select('
                 p.id, p.slug, p.name, p.price, p.vat_exempt,
-                p.track_stock, p.stock_qty, p.low_stock_threshold, p.active,
+                p.track_stock, p.stock_qty, p.low_stock_threshold, p.active, p.is_coming_soon,
                 p.category_id, c.name AS category_name, c.slug AS category_slug,
                 (SELECT url FROM shop_product_images
                  WHERE product_id = p.id ORDER BY position ASC LIMIT 1) AS cover_image
@@ -100,6 +100,7 @@ class MySqlProductRepository extends AbstractMysqlRepository implements ProductR
                 : null,
             'category_id'         => $product->categoryId,
             'active'              => (int) $product->active,
+            'is_coming_soon'      => (int) $product->isComingSoon,
         ];
 
         if ($product->id === 0) {

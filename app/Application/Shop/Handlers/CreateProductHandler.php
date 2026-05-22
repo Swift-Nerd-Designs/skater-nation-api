@@ -37,6 +37,7 @@ final class CreateProductHandler
             lowStockThreshold: $cmd->lowStockThreshold,
             landingContent:    $cmd->landingContent,
             active:            $cmd->active,
+            isComingSoon:      $cmd->isComingSoon,
         );
 
         return $this->products->save($product);
