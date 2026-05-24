@@ -7,9 +7,23 @@ use Cloudinary\Cloudinary;
 
 class CloudinaryUploader implements ImageUploaderInterface
 {
+    private function client(): Cloudinary
+    {
+        $url = getenv('CLOUDINARY_URL');
+        if ($url) {
+            return new Cloudinary($url);
+        }
+
+        $cloud  = getenv('CLOUDINARY_CLOUD_NAME');
+        $key    = getenv('CLOUDINARY_API_KEY');
+        $secret = getenv('CLOUDINARY_API_SECRET');
+
+        return new Cloudinary("cloudinary://{$key}:{$secret}@{$cloud}");
+    }
+
     public function uploadImage(string $tempPath, string $folder = 'images'): string
     {
-        $cloudinary = new Cloudinary(getenv('CLOUDINARY_URL'));
+        $cloudinary = $this->client();
 
         $result = $cloudinary->uploadApi()->upload($tempPath, [
             'folder'        => 'jnv/' . $folder,
@@ -21,7 +35,7 @@ class CloudinaryUploader implements ImageUploaderInterface
 
     public function uploadPdf(string $tempPath, string $folder = 'pdfs'): string
     {
-        $cloudinary = new Cloudinary(getenv('CLOUDINARY_URL'));
+        $cloudinary = $this->client();
         $filename   = pathinfo($tempPath, PATHINFO_FILENAME);
 
         $result = $cloudinary->uploadApi()->upload($tempPath, [

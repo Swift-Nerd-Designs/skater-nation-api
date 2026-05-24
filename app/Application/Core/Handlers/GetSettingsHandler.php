@@ -48,6 +48,7 @@ final class GetSettingsHandler
             'shop_hero_image', 'shop_hero_image_2', 'shop_hero_image_3',
             'shop_hero_headline', 'shop_hero_tagline',
             'shop_specials_title', 'shop_specials_category',
+            'shop_all_products_banner',
             // Contact page
             'contact_map_embed_url',
             'contact_hero_eyebrow', 'contact_hero_title', 'contact_hero_body', 'contact_hero_image',
