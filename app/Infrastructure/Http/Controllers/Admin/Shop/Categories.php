@@ -34,12 +34,15 @@ class Categories extends BaseController
 
         try {
             $category = service('updateCategoryHandler')->handle(new UpdateCategoryCommand(
-                id:        $id,
-                name:      $body['name']     ?? null,
-                setParent: array_key_exists('parent_id', $body),
-                parentId:  array_key_exists('parent_id', $body) && $body['parent_id'] !== null
-                               ? (int) $body['parent_id'] : null,
-                position:  isset($body['position']) ? (int) $body['position'] : null,
+                id:          $id,
+                name:        $body['name']     ?? null,
+                setParent:   array_key_exists('parent_id', $body),
+                parentId:    array_key_exists('parent_id', $body) && $body['parent_id'] !== null
+                                 ? (int) $body['parent_id'] : null,
+                position:    isset($body['position']) ? (int) $body['position'] : null,
+                setBanner:   array_key_exists('banner_image', $body),
+                bannerImage: array_key_exists('banner_image', $body)
+                                 ? ($body['banner_image'] ?: null) : null,
             ));
         } catch (\DomainException $e) {
             return $this->notFound($e->getMessage());

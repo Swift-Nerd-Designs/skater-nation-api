@@ -33,15 +33,17 @@ final class UpdateCategoryHandler
             throw new \InvalidArgumentException('A category cannot be its own parent.');
         }
 
-        $parentId = $cmd->setParent ? $cmd->parentId : $existing->parentId;
-        $position = $cmd->position ?? $existing->position;
+        $parentId    = $cmd->setParent  ? $cmd->parentId    : $existing->parentId;
+        $position    = $cmd->position  ?? $existing->position;
+        $bannerImage = $cmd->setBanner  ? $cmd->bannerImage : $existing->bannerImage;
 
         return $this->categories->save(new Category(
-            id:       $cmd->id,
-            parentId: $parentId,
-            slug:     $slug,
-            name:     $name,
-            position: $position,
+            id:          $cmd->id,
+            parentId:    $parentId,
+            slug:        $slug,
+            name:        $name,
+            position:    $position,
+            bannerImage: $bannerImage,
         ));
     }
 

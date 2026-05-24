@@ -19,7 +19,7 @@ class MySqlCategoryRepository extends AbstractMysqlRepository implements Categor
     public function findAllWithProductCount(): array
     {
         $rows = $this->db->query("
-            SELECT c.id, c.slug, c.name, c.parent_id, c.position,
+            SELECT c.id, c.slug, c.name, c.banner_image, c.parent_id, c.position,
                    COUNT(p.id) AS product_count
             FROM shop_categories c
             LEFT JOIN shop_products p ON p.category_id = c.id AND p.active = 1
@@ -49,19 +49,21 @@ class MySqlCategoryRepository extends AbstractMysqlRepository implements Categor
             // Insert
             $slug = $this->uniqueSlug('shop_categories', $this->slugify($category->name));
             $this->db->table('shop_categories')->insert([
-                'name'      => $category->name,
-                'slug'      => $slug,
-                'parent_id' => $category->parentId,
-                'position'  => $category->position,
+                'name'         => $category->name,
+                'slug'         => $slug,
+                'parent_id'    => $category->parentId,
+                'position'     => $category->position,
+                'banner_image' => $category->bannerImage,
             ]);
             $id = (int) $this->db->insertID();
         } else {
             // Update
             $this->db->table('shop_categories')->where('id', $category->id)->update([
-                'name'      => $category->name,
-                'slug'      => $category->slug,
-                'parent_id' => $category->parentId,
-                'position'  => $category->position,
+                'name'         => $category->name,
+                'slug'         => $category->slug,
+                'parent_id'    => $category->parentId,
+                'position'     => $category->position,
+                'banner_image' => $category->bannerImage,
             ]);
             $id = $category->id;
         }

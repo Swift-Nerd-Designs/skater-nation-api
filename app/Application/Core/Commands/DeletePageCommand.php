@@ -6,8 +6,7 @@ final class DeletePageCommand
 {
     /** Pages in this list cannot be deleted. */
     private const PROTECTED = [
-        'home', 'about', 'training', 'compliance',
-        'farm-development', 'projects', 'contact', 'downloads',
+        'home', 'downloads',
     ];
 
     public function __construct(
