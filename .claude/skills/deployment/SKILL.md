@@ -76,10 +76,35 @@ composer -V
 
 ## First Deployment (fresh server)
 
+### Assumptions
+- Repo is already cloned (`git clone … && cd client-api`)
+- Composer is installed (run `install_composer.sh` first if not)
+- Running on a clean `main` branch
+
+### Option A — Automated (recommended)
+
+Run the included setup script from inside the repo root. It handles composer install, writable dirs, .env, file permissions, and .user.ini:
+
+```bash
+chmod +x setup_server.sh
+./setup_server.sh
+```
+
+After it finishes, complete the remaining manual steps it prints:
+- Fill in `.env` with production values
+- Symlink `public/` → `public_html/api/`
+- Add `.htaccess`
+- Run migrations + seed
+
+---
+
+### Option B — Manual
+
 ### 1. Clone the Repo
 ```bash
 cd ~
 git clone https://github.com/youruser/client-api.git client-api
+cd client-api
 ```
 
 ### 2. Symlink `public/` into `public_html/api/`
