@@ -36,8 +36,10 @@ CodeIgniter 4 PHP REST API. Layered architecture: Domain → Application → Inf
 ## Dev Commands
 ```bash
 cd client-api
-php spark serve     # local dev on :8080
-php spark migrate   # run DB migrations
+php spark serve               # local dev on :8080
+php spark migrate             # run DB migrations
+./vendor/bin/phpunit          # run all feature tests (against client_cms_test)
+./vendor/bin/phpunit --filter test_name   # run a single test
 ```
 
 ---
@@ -234,9 +236,27 @@ $token = substr($this->request->getHeaderLine('Authorization'), 7);
 
 ### Test database
 Feature tests use `$DBGroup = 'tests'` → `client_cms_test` MySQL database.
-Create once: `mysql -u root -e "CREATE DATABASE IF NOT EXISTS client_cms_test;"`
+Create once: `mysql -u root -P 3307 -e "CREATE DATABASE IF NOT EXISTS client_cms_test;"`
+
+Tests live in `tests/Feature/` and extend `Tests\Feature\BaseFeatureTest` (never `CIUnitTestCase` directly).
+Run: `./vendor/bin/phpunit` | Single file: `./vendor/bin/phpunit tests/Feature/Blog/BlogPostsTest.php`
 
 ---
+
+## Error Reporting (Sentry)
+
+Sentry PHP SDK is installed (`sentry/sentry ^4`). Set `SENTRY_DSN` in `.env` to activate.
+
+- **Init:** `SentryService::init()` called at the top of `app/Config/Events.php` (before `pre_system`)
+- **Capture:** `Config/Exceptions.php::handler()` calls `SentryService::capture($exception)` for all HTTP 5xx errors
+- **Manual capture:** anywhere in the codebase: `\App\Infrastructure\Services\SentryService::capture($e)`
+- **Skip in tests:** `ENVIRONMENT === 'testing'` → Sentry is a no-op; no DSN needed in CI
+- **Traces:** `traces_sample_rate` is `0.1` in production, `0.0` in development (performance tracing only when DSN set)
+
+```env
+# .env
+SENTRY_DSN = https://xxx@oXXX.ingest.sentry.io/XXX
+```
 
 ## Conventions
 - All routes must be explicit in `app/Config/Routes.php` — no auto-routing
@@ -253,6 +273,7 @@ Skills are stored in `.claude/skills/` within this project directory. Always res
 - `/shop-api` — for e-commerce API: products, orders, checkout, payment, reviews, stock (defined in `client-api/.claude/skills/`)
 - `/deployment` — for deploying to cPanel shared hosting (defined in `client-api/.claude/skills/`)
 - `/shortcut` — for creating and managing Shortcut epics and stories with GitHub branch enforcement (defined in `client-api/.claude/skills/`)
+- `/testing` — for writing PHPUnit feature tests: DB setup, base class, patterns, admin auth bypass (defined in `client-api/.claude/skills/`)
 
 **Rule:** When a skill is invoked inside `client-api/`, all file reads, writes, and commands execute relative to `client-api/`. Skills must never assume or change the working directory to a parent or sibling repo (`client-site/`, `client-template/`, etc.) unless the skill description explicitly states cross-repo scope.
 

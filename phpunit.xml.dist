@@ -16,19 +16,17 @@
 
     <source>
         <include>
-            <directory suffix=".php">app/Controllers</directory>
+            <directory suffix=".php">app/Infrastructure/Http/Controllers</directory>
         </include>
     </source>
 
     <php>
         <env name="CI_ENVIRONMENT"           value="testing"/>
-        <!-- Override test DB credentials here or in .env -->
-        <!--
+        <env name="app.baseURL"              value="http://localhost:8080"/>
         <env name="database.tests.hostname"  value="127.0.0.1"/>
+        <env name="database.tests.port"      value="3307"/>
         <env name="database.tests.username"  value="root"/>
         <env name="database.tests.password"  value=""/>
         <env name="database.tests.database"  value="client_cms_test"/>
-        -->
-        <env name="app.baseURL"              value="http://localhost:8080"/>
     </php>
 </phpunit>

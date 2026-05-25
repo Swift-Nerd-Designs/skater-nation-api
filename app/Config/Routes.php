@@ -174,3 +174,21 @@ $routes->delete('admin/newsletter/subscribers/(:num)', '\App\Infrastructure\Http
 $routes->post('admin/backup/create',        '\App\Infrastructure\Http\Controllers\Admin\Backup::create',       ['filter' => 'adminonlyauth']);
 $routes->post('admin/backup/restore',       '\App\Infrastructure\Http\Controllers\Admin\Backup::restore',      ['filter' => 'adminonlyauth']);
 $routes->post('admin/backup/factory-reset', '\App\Infrastructure\Http\Controllers\Admin\Backup::factoryReset', ['filter' => 'adminonlyauth']);
+
+// ── Blog (public) ────────────────────────────────────────────────────────────
+$routes->get('blog/categories',       '\App\Infrastructure\Http\Controllers\Blog\Categories::index');
+$routes->get('blog/posts',            '\App\Infrastructure\Http\Controllers\Blog\Posts::index');
+$routes->get('blog/posts/(:segment)', '\App\Infrastructure\Http\Controllers\Blog\Posts::show/$1');
+
+// ── Blog (admin) ─────────────────────────────────────────────────────────────
+$routes->get(   'admin/blog/categories',        '\App\Infrastructure\Http\Controllers\Admin\Blog\Categories::index',     ['filter' => 'adminauth']);
+$routes->post(  'admin/blog/categories',        '\App\Infrastructure\Http\Controllers\Admin\Blog\Categories::create',    ['filter' => 'adminauth']);
+$routes->put(   'admin/blog/categories/(:num)', '\App\Infrastructure\Http\Controllers\Admin\Blog\Categories::update/$1', ['filter' => 'adminauth']);
+$routes->delete('admin/blog/categories/(:num)', '\App\Infrastructure\Http\Controllers\Admin\Blog\Categories::delete/$1', ['filter' => 'adminauth']);
+
+$routes->get(   'admin/blog/posts',              '\App\Infrastructure\Http\Controllers\Admin\Blog\Posts::index',     ['filter' => 'adminauth']);
+$routes->post(  'admin/blog/posts',              '\App\Infrastructure\Http\Controllers\Admin\Blog\Posts::create',    ['filter' => 'adminauth']);
+$routes->get(   'admin/blog/posts/(:num)',        '\App\Infrastructure\Http\Controllers\Admin\Blog\Posts::show/$1',   ['filter' => 'adminauth']);
+$routes->put(   'admin/blog/posts/(:num)',        '\App\Infrastructure\Http\Controllers\Admin\Blog\Posts::update/$1', ['filter' => 'adminauth']);
+$routes->patch( 'admin/blog/posts/(:num)/publish','\App\Infrastructure\Http\Controllers\Admin\Blog\Posts::publish/$1',['filter' => 'adminauth']);
+$routes->delete('admin/blog/posts/(:num)',        '\App\Infrastructure\Http\Controllers\Admin\Blog\Posts::delete/$1', ['filter' => 'adminauth']);

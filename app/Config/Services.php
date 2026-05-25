@@ -474,6 +474,56 @@ class Services extends BaseService
         return new \App\Infrastructure\Persistence\MySqlNewsletterSubscriberRepository();
     }
 
+    // ── Blog ─────────────────────────────────────────────────────────────────
+
+    public static function blogCategoryRepository(bool $getShared = true): \App\Domain\Blog\BlogCategoryRepositoryInterface
+    {
+        if ($getShared) return static::getSharedInstance('blogCategoryRepository');
+        return new \App\Infrastructure\Persistence\MySqlBlogCategoryRepository(\Config\Database::connect());
+    }
+
+    public static function blogPostRepository(bool $getShared = true): \App\Domain\Blog\BlogPostRepositoryInterface
+    {
+        if ($getShared) return static::getSharedInstance('blogPostRepository');
+        return new \App\Infrastructure\Persistence\MySqlBlogPostRepository(\Config\Database::connect());
+    }
+
+    public static function createBlogCategoryHandler(bool $getShared = true): \App\Application\Blog\Handlers\CreateBlogCategoryHandler
+    {
+        if ($getShared) return static::getSharedInstance('createBlogCategoryHandler');
+        return new \App\Application\Blog\Handlers\CreateBlogCategoryHandler(static::blogCategoryRepository());
+    }
+
+    public static function updateBlogCategoryHandler(bool $getShared = true): \App\Application\Blog\Handlers\UpdateBlogCategoryHandler
+    {
+        if ($getShared) return static::getSharedInstance('updateBlogCategoryHandler');
+        return new \App\Application\Blog\Handlers\UpdateBlogCategoryHandler(static::blogCategoryRepository());
+    }
+
+    public static function deleteBlogCategoryHandler(bool $getShared = true): \App\Application\Blog\Handlers\DeleteBlogCategoryHandler
+    {
+        if ($getShared) return static::getSharedInstance('deleteBlogCategoryHandler');
+        return new \App\Application\Blog\Handlers\DeleteBlogCategoryHandler(static::blogCategoryRepository());
+    }
+
+    public static function createBlogPostHandler(bool $getShared = true): \App\Application\Blog\Handlers\CreateBlogPostHandler
+    {
+        if ($getShared) return static::getSharedInstance('createBlogPostHandler');
+        return new \App\Application\Blog\Handlers\CreateBlogPostHandler(static::blogPostRepository());
+    }
+
+    public static function updateBlogPostHandler(bool $getShared = true): \App\Application\Blog\Handlers\UpdateBlogPostHandler
+    {
+        if ($getShared) return static::getSharedInstance('updateBlogPostHandler');
+        return new \App\Application\Blog\Handlers\UpdateBlogPostHandler(static::blogPostRepository());
+    }
+
+    public static function deleteBlogPostHandler(bool $getShared = true): \App\Application\Blog\Handlers\DeleteBlogPostHandler
+    {
+        if ($getShared) return static::getSharedInstance('deleteBlogPostHandler');
+        return new \App\Application\Blog\Handlers\DeleteBlogPostHandler(static::blogPostRepository());
+    }
+
     public static function newsletterSubscriptionMailer(bool $getShared = true): \App\Application\Ports\NewsletterSubscriptionMailerInterface
     {
         if ($getShared) return static::getSharedInstance('newsletterSubscriptionMailer');

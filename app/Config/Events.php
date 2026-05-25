@@ -2,6 +2,7 @@
 
 namespace Config;
 
+use App\Infrastructure\Services\SentryService;
 use CodeIgniter\Events\Events;
 use CodeIgniter\Exceptions\FrameworkException;
 use CodeIgniter\HotReloader\HotReloader;
@@ -22,6 +23,9 @@ use CodeIgniter\HotReloader\HotReloader;
  * Example:
  *      Events::on('create', [$myInstance, 'myMethod']);
  */
+
+// Initialise Sentry as early as possible so it can capture bootstrap errors too.
+SentryService::init();
 
 Events::on('pre_system', static function (): void {
     if (ENVIRONMENT !== 'testing') {

@@ -34,6 +34,46 @@ php spark migrate
 php spark migrate:status   # verify all ran
 ```
 
+## Installing Composer on Afrihost Shared Hosting
+
+> Afrihost disables `allow_url_fopen` by default, so `php -r "copy(...)"` fails. Use `curl` instead.
+
+Run the included script (one-time, per hosting account):
+
+```bash
+chmod +x ~/client-api/install_composer.sh
+./~/client-api/install_composer.sh
+```
+
+Or manually:
+
+```bash
+mkdir -p ~/bin
+
+# Download via curl (NOT php copy — allow_url_fopen is OFF)
+curl -sS https://getcomposer.org/installer -o composer-setup.php
+
+# Install with allow_url_fopen forced on
+php -d allow_url_fopen=On composer-setup.php --install-dir=$HOME/bin --filename=composer.phar
+
+# Clean up
+php -r "unlink('composer-setup.php');"
+
+# Create wrapper script so "composer" works from anywhere
+echo '#!/bin/bash' > ~/bin/composer
+echo 'php -d allow_url_fopen=On ~/bin/composer.phar "$@"' >> ~/bin/composer
+chmod +x ~/bin/composer
+
+# Add ~/bin to PATH permanently
+echo 'export PATH="$HOME/bin:$PATH"' >> ~/.bashrc
+source ~/.bashrc
+
+# Verify
+composer -V
+```
+
+---
+
 ## First Deployment (fresh server)
 
 ### 1. Clone the Repo
@@ -142,5 +182,5 @@ rm -rf ~/client-api/writable/cache/*
 | CORS error from browser | `app.allowedOrigins` not set | Edit `.env` → add production frontend domain |
 | 401 on admin login (correct password) | Password hash not seeded | Generate hash + UPDATE `settings` table |
 | `git pull` fails "not a git repo" | Wrong directory | `cd ~/client-api && git status` |
-| `composer` not found | Not installed / PATH not set | Follow Composer install steps in `docs/04-deployment-shared-hosting.md` |
+| `composer` not found | Not installed / PATH not set | Run `chmod +x install_composer.sh && ./install_composer.sh` (uses curl, forces `allow_url_fopen=On`) |
 | Migration already run error | Running migrate twice | `php spark migrate:status` to check; safe to ignore "no migrations to run" |

@@ -8,7 +8,8 @@
         "codeigniter4/framework": "^4.5",
         "dompdf/dompdf": "^2.0",
         "phpmailer/phpmailer": "*",
-        "resend/resend-php": "*"
+        "resend/resend-php": "*",
+        "sentry/sentry": "*"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",

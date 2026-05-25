@@ -9,7 +9,7 @@ class CreateNewsletters extends Migration
     public function up(): void
     {
         $this->db->query("
-            CREATE TABLE newsletters (
+            CREATE TABLE IF NOT EXISTS newsletters (
                 id             INT UNSIGNED  NOT NULL AUTO_INCREMENT,
                 issue          VARCHAR(100)  NOT NULL DEFAULT '',
                 title          VARCHAR(255)  NOT NULL,

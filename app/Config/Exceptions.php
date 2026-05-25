@@ -2,6 +2,7 @@
 
 namespace Config;
 
+use App\Infrastructure\Services\SentryService;
 use CodeIgniter\Config\BaseConfig;
 use CodeIgniter\Debug\ExceptionHandler;
 use CodeIgniter\Debug\ExceptionHandlerInterface;
@@ -101,6 +102,11 @@ class Exceptions extends BaseConfig
      */
     public function handler(int $statusCode, Throwable $exception): ExceptionHandlerInterface
     {
+        // Report 5xx errors to Sentry; skip 4xx (client errors, not bugs).
+        if ($statusCode >= 500) {
+            SentryService::capture($exception);
+        }
+
         return new ExceptionHandler($this);
     }
 }

@@ -9,7 +9,7 @@ class CreateDocuments extends Migration
     public function up(): void
     {
         $this->db->query("
-            CREATE TABLE documents (
+            CREATE TABLE IF NOT EXISTS documents (
                 id          INT UNSIGNED  NOT NULL AUTO_INCREMENT,
                 category    VARCHAR(100)  NOT NULL DEFAULT '',
                 title       VARCHAR(255)  NOT NULL,
