@@ -42,7 +42,7 @@ class LokiLogHandler extends BaseHandler implements HandlerInterface
             return false;
         }
 
-        $line      = $this->format($message);
+        $line      = $message;
         $timestamp = (string)(intval(microtime(true) * 1e9)); // nanoseconds
 
         $payload = json_encode([
