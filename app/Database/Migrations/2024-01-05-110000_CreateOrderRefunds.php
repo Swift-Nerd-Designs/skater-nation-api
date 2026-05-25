@@ -8,6 +8,9 @@ class CreateOrderRefunds extends Migration
 {
     public function up(): void
     {
+        // FK constraints omitted — forge-created tables (shop_orders, shop_order_items)
+        // use the server's default collation which may differ from utf8mb4_unicode_ci,
+        // causing errno: 150 on Afrihost shared hosting. App enforces referential integrity.
         $this->db->query("
             CREATE TABLE shop_order_refunds (
                 id           INT UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -16,8 +19,7 @@ class CreateOrderRefunds extends Migration
                 note         VARCHAR(500) NULL,
                 created_at   DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
                 PRIMARY KEY (id),
-                KEY idx_order (order_id),
-                CONSTRAINT fk_refund_order FOREIGN KEY (order_id) REFERENCES shop_orders(id) ON DELETE CASCADE
+                KEY idx_order (order_id)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
         ");
 
@@ -29,8 +31,7 @@ class CreateOrderRefunds extends Migration
                 qty           INT UNSIGNED NOT NULL,
                 PRIMARY KEY (id),
                 KEY idx_refund (refund_id),
-                CONSTRAINT fk_ri_refund FOREIGN KEY (refund_id)     REFERENCES shop_order_refunds(id) ON DELETE CASCADE,
-                CONSTRAINT fk_ri_item   FOREIGN KEY (order_item_id) REFERENCES shop_order_items(id)   ON DELETE CASCADE
+                KEY idx_item (order_item_id)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
         ");
     }
