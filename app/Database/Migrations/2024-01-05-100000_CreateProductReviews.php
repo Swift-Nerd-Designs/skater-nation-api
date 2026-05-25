@@ -8,6 +8,9 @@ class CreateProductReviews extends Migration
 {
     public function up(): void
     {
+        // FK constraints omitted — charset/collation on shared hosting (Afrihost) may
+        // differ between forge-created tables and raw-SQL tables, causing errno: 150.
+        // Referential integrity is enforced at the application layer.
         $this->db->query("
             CREATE TABLE shop_product_reviews (
                 id          INT UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -24,10 +27,9 @@ class CreateProductReviews extends Migration
                 PRIMARY KEY (id),
                 UNIQUE KEY uq_customer_product (customer_id, product_id),
                 KEY idx_product_status (product_id, status),
-                KEY idx_status (status),
-                CONSTRAINT fk_review_product  FOREIGN KEY (product_id)  REFERENCES shop_products(id)   ON DELETE CASCADE,
-                CONSTRAINT fk_review_customer FOREIGN KEY (customer_id) REFERENCES shop_customers(id)  ON DELETE CASCADE,
-                CONSTRAINT fk_review_order    FOREIGN KEY (order_id)    REFERENCES shop_orders(id)     ON DELETE CASCADE
+                KEY idx_customer (customer_id),
+                KEY idx_order (order_id),
+                KEY idx_status (status)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
         ");
     }
