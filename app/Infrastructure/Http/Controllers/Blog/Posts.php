@@ -12,10 +12,19 @@ class Posts extends BaseController
         $perPage    = (int) ($this->request->getGet('per_page') ?: 12);
         $categorySlug = trim($this->request->getGet('category') ?? '');
 
-        $categoryId = 0;
+        $categoryId  = 0;
+        $unknownCat  = false;
         if ($categorySlug !== '') {
             $cat = service('blogCategoryRepository')->findBySlug($categorySlug);
-            if ($cat) $categoryId = $cat->id;
+            if ($cat) {
+                $categoryId = $cat->id;
+            } else {
+                $unknownCat = true;
+            }
+        }
+
+        if ($unknownCat) {
+            return $this->ok(['posts' => [], 'pagination' => ['total' => 0, 'pages' => 1]]);
         }
 
         $result = service('blogPostRepository')->findAll($page, $perPage, 'published', $categoryId);

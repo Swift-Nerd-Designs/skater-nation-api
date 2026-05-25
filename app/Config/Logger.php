@@ -2,6 +2,7 @@
 
 namespace Config;
 
+use App\Infrastructure\Services\LokiLogHandler;
 use CodeIgniter\Config\BaseConfig;
 use CodeIgniter\Log\Handlers\FileHandler;
 use CodeIgniter\Log\Handlers\HandlerInterface;
@@ -137,6 +138,17 @@ class Logger extends BaseConfig
          * The ErrorlogHandler writes the logs to PHP's native `error_log()` function.
          * Uncomment this block to use it.
          */
+        /*
+         * --------------------------------------------------------------------
+         * Grafana Cloud Loki Handler
+         * --------------------------------------------------------------------
+         * Ships warning-and-above to Loki when LOKI_URL is set in .env.
+         * No-ops silently when the key is missing or in testing environment.
+         */
+        LokiLogHandler::class => [
+            'handles' => ['emergency', 'alert', 'critical', 'error', 'warning'],
+        ],
+
         // 'CodeIgniter\Log\Handlers\ErrorlogHandler' => [
         //     /* The log levels this handler can handle. */
         //     'handles' => ['critical', 'alert', 'emergency', 'debug', 'error', 'info', 'notice', 'warning'],

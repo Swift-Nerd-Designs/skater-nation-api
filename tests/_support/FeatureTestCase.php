@@ -104,7 +104,7 @@ abstract class FeatureTestCase extends CIUnitTestCase
             'expires_at' => $expiresAt,
         ]);
 
-        service('superglobals')->setCookie('jnv_admin_session', $token);
+        service('superglobals')->setCookie('sn_admin_session', $token);
         return $this;
     }
 
