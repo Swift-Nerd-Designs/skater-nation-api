@@ -36,13 +36,13 @@ class LokiLogHandler extends BaseHandler implements HandlerInterface
         $this->environment = ENVIRONMENT;
     }
 
-    public function handle(array $data): bool
+    public function handle($level, $message): bool
     {
         if ($this->url === '' || ENVIRONMENT === 'testing') {
             return false;
         }
 
-        $line      = $this->format($data['message']);
+        $line      = $this->format($message);
         $timestamp = (string)(intval(microtime(true) * 1e9)); // nanoseconds
 
         $payload = json_encode([
@@ -50,7 +50,7 @@ class LokiLogHandler extends BaseHandler implements HandlerInterface
                 'stream' => [
                     'app'         => $this->app,
                     'environment' => $this->environment,
-                    'level'       => strtolower($data['level'] ?? 'info'),
+                    'level'       => strtolower($level ?? 'info'),
                 ],
                 'values' => [[$timestamp, $line]],
             ]],
