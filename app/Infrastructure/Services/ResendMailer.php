@@ -24,30 +24,12 @@ class ResendMailer implements MailerInterface
             return;
         }
 
-        $currency = $order->currency;
-        $fmt = new \NumberFormatter('en-ZA', \NumberFormatter::CURRENCY);
-
-        $itemLines = array_map(fn($i) => sprintf(
-            '  %s%s × %d — %s',
-            $i['product_name'],
-            $i['variant_name'] ? " ({$i['variant_name']})" : '',
-            $i['qty'],
-            $fmt->formatCurrency($i['line_total_cents'] / 100, $currency)
-        ), $items);
-
-        $body  = "Hi {$order->firstName},\n\n";
-        $body .= "Thank you for your order #{$order->id}! Here's a summary:\n\n";
-        $body .= implode("\n", $itemLines) . "\n\n";
-        $body .= "Total: " . $fmt->formatCurrency($order->total->toFloat(), $currency) . "\n\n";
-        $body .= "Your invoice is attached to this email.\n";
-        $body .= "We'll be in touch with shipping details.\n\n";
-        $body .= "— {$siteName}";
-
         $payload = [
-            'from'    => "{$siteName} <{$fromEmail}>",
-            'to'      => [$order->email],
-            'subject' => "Order Confirmed — #{$order->id}",
-            'text'    => $body,
+            'from'     => "{$siteName} <{$fromEmail}>",
+            'reply_to' => $fromEmail,
+            'to'       => [$order->email],
+            'subject'  => "Order Confirmed — #{$order->id}",
+            'html'     => $this->buildOrderConfirmationHtml($order, $items, $settings),
             'attachments' => [[
                 'filename'     => "invoice-{$order->id}.pdf",
                 'content'      => $pdfBase64,
@@ -131,6 +113,132 @@ class ResendMailer implements MailerInterface
     }
 
     // ── Private helpers ───────────────────────────────────────────────
+
+    private function buildOrderConfirmationHtml(Order $order, array $items, array $settings): string
+    {
+        $currency = $order->currency;
+        $fmt      = fn(int $cents) => (new \NumberFormatter('en-ZA', \NumberFormatter::CURRENCY))
+            ->formatCurrency($cents / 100, $currency);
+
+        $vatEnabled = ($settings['shop_vat_enabled'] ?? '0') === '1';
+        $vatRate    = (float)($settings['shop_vat_rate'] ?? 15);
+
+        $firstName = $this->e($order->firstName);
+        $orderId   = $order->id;
+
+        $itemRows = '';
+        foreach ($items as $item) {
+            $name = $this->e($item['product_name']);
+            if (!empty($item['variant_name'])) {
+                $name .= ' <span style="color:#aaaaaa;font-size:12px;">(' . $this->e($item['variant_name']) . ')</span>';
+            }
+            $itemRows .= sprintf(
+                '<tr>
+                  <td style="padding:12px 0;border-bottom:1px solid #1a1a1a;color:#f0f0f0;font-size:14px;">%s</td>
+                  <td style="padding:12px 0;border-bottom:1px solid #1a1a1a;color:#aaaaaa;font-size:14px;text-align:center;">%d</td>
+                  <td style="padding:12px 0;border-bottom:1px solid #1a1a1a;color:#f0f0f0;font-size:14px;text-align:right;">%s</td>
+                </tr>',
+                $name,
+                $item['qty'],
+                $fmt((int)$item['line_total_cents'])
+            );
+        }
+
+        $shippingRow = $order->shipping->amountCents > 0
+            ? sprintf('<tr><td colspan="2" style="padding:6px 0;color:#aaaaaa;font-size:13px;text-align:right;">Shipping</td><td style="padding:6px 0;color:#aaaaaa;font-size:13px;text-align:right;">%s</td></tr>', $fmt($order->shipping->amountCents))
+            : '<tr><td colspan="2" style="padding:6px 0;color:#aaaaaa;font-size:13px;text-align:right;">Shipping</td><td style="padding:6px 0;color:#aaaaaa;font-size:13px;text-align:right;">Free</td></tr>';
+
+        $vatRow = ($vatEnabled && $order->vat->amountCents > 0)
+            ? sprintf('<tr><td colspan="2" style="padding:6px 0;color:#aaaaaa;font-size:13px;text-align:right;">VAT (%s%%)</td><td style="padding:6px 0;color:#aaaaaa;font-size:13px;text-align:right;">%s</td></tr>', $vatRate, $fmt($order->vat->amountCents))
+            : '';
+
+        $totalFormatted = $fmt($order->total->amountCents);
+        $year = date('Y');
+
+        return <<<HTML
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Order Confirmed</title>
+</head>
+<body style="margin:0;padding:0;background-color:#0a0a0a;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;">
+<table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color:#0a0a0a;">
+  <tr><td align="center" style="padding:40px 16px;">
+    <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="580" style="max-width:580px;width:100%;">
+
+      <!-- Header -->
+      <tr><td style="padding-bottom:32px;">
+        <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%">
+          <tr>
+            <td>
+              <span style="font-size:22px;font-weight:900;letter-spacing:-0.5px;color:#ffffff;text-transform:uppercase;">SKATER</span><span style="font-size:22px;font-weight:900;letter-spacing:-0.5px;color:#d10000;text-transform:uppercase;"> NATION</span>
+            </td>
+            <td style="text-align:right;">
+              <span style="font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#aaaaaa;">Order #{$orderId}</span>
+            </td>
+          </tr>
+        </table>
+      </td></tr>
+
+      <!-- Red accent bar -->
+      <tr><td style="height:3px;background-color:#d10000;margin-bottom:32px;display:block;">&nbsp;</td></tr>
+
+      <!-- Hero message -->
+      <tr><td style="padding:32px 0 24px;">
+        <p style="margin:0 0 8px;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#d10000;">Order Confirmed</p>
+        <h1 style="margin:0 0 12px;font-size:28px;font-weight:900;color:#ffffff;text-transform:uppercase;letter-spacing:-0.5px;line-height:1.1;">You're in, {$firstName}.</h1>
+        <p style="margin:0;font-size:15px;color:#aaaaaa;line-height:1.6;">Your order has been confirmed and your invoice is attached. We'll be in touch with shipping details soon.</p>
+      </td></tr>
+
+      <!-- Order details card -->
+      <tr><td style="background-color:#111111;border-radius:4px;padding:24px;margin-bottom:24px;">
+        <p style="margin:0 0 20px;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#aaaaaa;">Order Summary</p>
+        <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%">
+          <thead>
+            <tr>
+              <th style="padding:0 0 8px;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#555555;text-align:left;border-bottom:1px solid #1a1a1a;">Item</th>
+              <th style="padding:0 0 8px;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#555555;text-align:center;border-bottom:1px solid #1a1a1a;">Qty</th>
+              <th style="padding:0 0 8px;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#555555;text-align:right;border-bottom:1px solid #1a1a1a;">Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            {$itemRows}
+          </tbody>
+          <tfoot>
+            {$vatRow}
+            {$shippingRow}
+            <tr>
+              <td colspan="2" style="padding:16px 0 0;font-size:14px;font-weight:700;color:#ffffff;text-align:right;border-top:2px solid #d10000;">Total</td>
+              <td style="padding:16px 0 0;font-size:16px;font-weight:900;color:#d10000;text-align:right;border-top:2px solid #d10000;">{$totalFormatted}</td>
+            </tr>
+          </tfoot>
+        </table>
+      </td></tr>
+
+      <!-- Invoice note -->
+      <tr><td style="padding:24px 0 0;">
+        <p style="margin:0;font-size:13px;color:#555555;line-height:1.6;">Your invoice is attached as a PDF. Keep it for your records.</p>
+      </td></tr>
+
+      <!-- Footer -->
+      <tr><td style="padding:40px 0 0;">
+        <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="border-top:1px solid #1a1a1a;">
+          <tr><td style="padding:24px 0 0;">
+            <p style="margin:0 0 4px;font-size:11px;color:#333333;">&copy; {$year} Skater Nation. Born in Secunda.</p>
+            <p style="margin:0;font-size:11px;color:#333333;">snonline.co.za</p>
+          </td></tr>
+        </table>
+      </td></tr>
+
+    </table>
+  </td></tr>
+</table>
+</body>
+</html>
+HTML;
+    }
 
     private function post(string $apiKey, array $payload): void
     {
