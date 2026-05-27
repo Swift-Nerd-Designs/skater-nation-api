@@ -26,7 +26,6 @@ class DompdfInvoicePdf implements InvoicePdfInterface
     private function buildHtml(Order $order, array $items, array $settings): string
     {
         $currency   = $order->currency;
-        $siteName   = $settings['site_name']       ?? 'Our Shop';
         $vatRate    = (float)($settings['shop_vat_rate']     ?? 15);
         $vatEnabled = ($settings['shop_vat_enabled'] ?? '0') === '1';
 
@@ -51,16 +50,16 @@ class DompdfInvoicePdf implements InvoicePdfInterface
             );
         }
 
-        $totals = '<tr class="subtotal"><td colspan="3" class="right">Subtotal</td><td class="right">' . $fmt($order->subtotal->amountCents) . '</td></tr>';
+        $totals = '<tr class="subtotal-row"><td colspan="3" class="right">Subtotal</td><td class="right">' . $fmt($order->subtotal->amountCents) . '</td></tr>';
         if ($vatEnabled && $order->vat->amountCents > 0) {
-            $totals .= '<tr class="subtotal"><td colspan="3" class="right">VAT (' . $vatRate . '%)</td><td class="right">' . $fmt($order->vat->amountCents) . '</td></tr>';
+            $totals .= '<tr class="subtotal-row"><td colspan="3" class="right">VAT (' . $vatRate . '%)</td><td class="right">' . $fmt($order->vat->amountCents) . '</td></tr>';
         }
         if ($order->shipping->amountCents > 0) {
-            $totals .= '<tr class="subtotal"><td colspan="3" class="right">Shipping</td><td class="right">' . $fmt($order->shipping->amountCents) . '</td></tr>';
+            $totals .= '<tr class="subtotal-row"><td colspan="3" class="right">Shipping</td><td class="right">' . $fmt($order->shipping->amountCents) . '</td></tr>';
         } else {
-            $totals .= '<tr class="subtotal"><td colspan="3" class="right">Shipping</td><td class="right">Free</td></tr>';
+            $totals .= '<tr class="subtotal-row"><td colspan="3" class="right">Shipping</td><td class="right">Free</td></tr>';
         }
-        $totals .= '<tr class="total"><td colspan="3" class="right">Total</td><td class="right">' . $fmt($order->total->amountCents) . '</td></tr>';
+        $totals .= '<tr class="total-row"><td colspan="3" class="right">Total</td><td class="right amount">' . $fmt($order->total->amountCents) . '</td></tr>';
 
         $addr = $order->address;
         $addressParts = [htmlspecialchars($addr->line1)];
@@ -75,66 +74,81 @@ class DompdfInvoicePdf implements InvoicePdfInterface
         $email     = htmlspecialchars($order->email);
 
         return <<<HTML
-        <!DOCTYPE html>
-        <html>
-        <head>
-          <meta charset="utf-8">
-          <style>
-            * { margin:0; padding:0; box-sizing:border-box; }
-            body { font-family: DejaVu Sans, sans-serif; font-size:12px; color:#1f2937; line-height:1.5; }
-            .wrap { padding:40px; }
-            .header { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:40px; }
-            .company-name { font-size:20px; font-weight:700; color:#111827; }
-            .invoice-title { font-size:28px; font-weight:700; color:#111827; text-align:right; }
-            .invoice-meta { text-align:right; color:#6b7280; font-size:11px; margin-top:4px; }
-            .section { margin-bottom:28px; }
-            table { width:100%; border-collapse:collapse; }
-            th { padding:8px 12px; background:#f9fafb; border-bottom:2px solid #e5e7eb; font-weight:600; font-size:11px; text-transform:uppercase; letter-spacing:0.04em; color:#6b7280; }
-            td { padding:10px 12px; border-bottom:1px solid #f3f4f6; vertical-align:top; }
-            tr.subtotal td { padding:6px 12px; border-bottom:none; color:#6b7280; font-size:11px; }
-            tr.total td { padding:10px 12px; border-top:2px solid #e5e7eb; font-weight:700; font-size:14px; color:#111827; }
-            .center { text-align:center; }
-            .right  { text-align:right; }
-            .footer { margin-top:48px; padding-top:16px; border-top:1px solid #e5e7eb; color:#9ca3af; font-size:10px; text-align:center; }
-          </style>
-        </head>
-        <body>
-          <div class="wrap">
-            <div class="header">
-              <div>
-                <div class="company-name">{$siteName}</div>
-                <div style="margin-top:12px;font-size:11px;color:#6b7280;">Bill to:</div>
-                <div style="margin-top:4px;font-size:12px;">
-                  <strong>{$firstName} {$lastName}</strong><br>
-                  {$email}<br>
-                  {$address}
-                </div>
-              </div>
-              <div>
-                <div class="invoice-title">INVOICE</div>
-                <div class="invoice-meta">Ref: {$orderRef}<br>Date: {$invoiceDate}</div>
-              </div>
-            </div>
-            <div class="section">
-              <table>
-                <thead>
-                  <tr>
-                    <th>Description</th>
-                    <th class="center" style="width:60px">Qty</th>
-                    <th class="right" style="width:100px">Unit Price</th>
-                    <th class="right" style="width:110px">Line Total</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {$itemRows}
-                  {$totals}
-                </tbody>
-              </table>
-            </div>
-            <div class="footer">Thank you for your order. This document serves as your official invoice.</div>
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family: DejaVu Sans, sans-serif; font-size:12px; color:#1f2937; line-height:1.5; background:#ffffff; }
+    .wrap { padding:40px; }
+    .top-bar { background:#d10000; height:4px; margin-bottom:36px; }
+    .header-table { width:100%; margin-bottom:36px; }
+    .brand-name { font-size:22px; font-weight:700; color:#0a0a0a; text-transform:uppercase; letter-spacing:-0.5px; }
+    .brand-name span { color:#d10000; }
+    .invoice-label { font-size:28px; font-weight:700; color:#0a0a0a; text-transform:uppercase; letter-spacing:2px; text-align:right; }
+    .invoice-meta { font-size:11px; color:#6b7280; text-align:right; margin-top:6px; line-height:1.7; }
+    .bill-to-label { font-size:10px; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; color:#aaaaaa; margin-bottom:6px; }
+    .bill-to-name { font-size:13px; font-weight:700; color:#0a0a0a; }
+    .bill-to-detail { font-size:11px; color:#6b7280; line-height:1.7; }
+    .divider { border:none; border-top:1px solid #e5e7eb; margin:28px 0; }
+    table.items { width:100%; border-collapse:collapse; }
+    table.items th { padding:8px 10px; background:#f9fafb; border-bottom:2px solid #0a0a0a; font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:1px; color:#6b7280; }
+    table.items td { padding:10px 10px; border-bottom:1px solid #f3f4f6; font-size:12px; color:#1f2937; vertical-align:top; }
+    .subtotal-row td { padding:5px 10px; border:none; font-size:11px; color:#6b7280; }
+    .total-row td { padding:12px 10px; border-top:2px solid #d10000; font-size:14px; font-weight:700; color:#0a0a0a; }
+    .total-row .amount { color:#d10000; font-size:16px; }
+    .center { text-align:center; }
+    .right  { text-align:right; }
+    .footer { margin-top:48px; padding-top:16px; border-top:1px solid #e5e7eb; font-size:10px; color:#9ca3af; text-align:center; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="top-bar"></div>
+    <table class="header-table" cellpadding="0" cellspacing="0">
+      <tr>
+        <td style="width:50%;vertical-align:top;">
+          <div class="brand-name">SKATER<span> NATION</span></div>
+          <div style="margin-top:20px;">
+            <div class="bill-to-label">Bill To</div>
+            <div class="bill-to-name">{$firstName} {$lastName}</div>
+            <div class="bill-to-detail">{$email}<br>{$address}</div>
           </div>
-        </body>
-        </html>
-        HTML;
+        </td>
+        <td style="width:50%;vertical-align:top;">
+          <div class="invoice-label">Invoice</div>
+          <div class="invoice-meta">
+            <strong>Ref:</strong> {$orderRef}<br>
+            <strong>Date:</strong> {$invoiceDate}
+          </div>
+        </td>
+      </tr>
+    </table>
+    <hr class="divider">
+    <table class="items">
+      <thead>
+        <tr>
+          <th style="text-align:left;">Description</th>
+          <th class="center" style="width:60px;">Qty</th>
+          <th class="right" style="width:100px;">Unit Price</th>
+          <th class="right" style="width:110px;">Line Total</th>
+        </tr>
+      </thead>
+      <tbody>
+        {$itemRows}
+      </tbody>
+      <tfoot>
+        {$totals}
+      </tfoot>
+    </table>
+    <div class="footer">
+      Thank you for supporting the culture. This document serves as your official invoice.<br>
+      snonline.co.za &mdash; Born in Secunda, Mpumalanga.
+    </div>
+  </div>
+</body>
+</html>
+HTML;
     }
 }
