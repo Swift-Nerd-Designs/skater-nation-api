@@ -3,7 +3,6 @@
 namespace App\Infrastructure\Services;
 
 use Sentry\SentrySdk;
-use Sentry\State\HubInterface;
 use Throwable;
 
 /**
@@ -38,6 +37,9 @@ class SentryService
             'environment'        => ENVIRONMENT,
             'traces_sample_rate' => ENVIRONMENT === 'production' ? 0.1 : 0.0,
             'release'            => env('APP_VERSION', 'unknown'),
+            // Exclude E_DEPRECATED (8192) and E_USER_DEPRECATED (16384) — vendor
+            // libraries (dompdf, etc.) emit these on PHP 8.x and they are noise.
+            'error_types'        => E_ALL & ~E_DEPRECATED & ~E_USER_DEPRECATED,
         ]);
 
         self::$initialised = true;
