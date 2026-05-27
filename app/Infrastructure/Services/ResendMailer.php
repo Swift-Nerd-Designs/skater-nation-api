@@ -280,14 +280,16 @@ HTML;
 
         $trackingBlock = '';
         if ($status === 'shipped' && (!empty($extra['tracking_number']) || !empty($extra['tracking_carrier']))) {
-            $carrier = $this->e($extra['tracking_carrier'] ?? '');
-            $number  = $this->e($extra['tracking_number']  ?? '');
+            $carrier     = $this->e($extra['tracking_carrier'] ?? '');
+            $number      = $this->e($extra['tracking_number']  ?? '');
+            $carrierRow  = $carrier ? "<p style=\"margin:0 0 4px;font-size:14px;color:#aaaaaa;\">Carrier: <span style=\"color:#f0f0f0;\">{$carrier}</span></p>" : '';
+            $numberRow   = $number  ? "<p style=\"margin:0;font-size:14px;color:#aaaaaa;\">Tracking No: <span style=\"color:#f0f0f0;font-weight:700;\">{$number}</span></p>" : '';
             $trackingBlock = <<<HTML
       <tr><td style="padding:24px 0 0;">
         <div style="background-color:#111111;border-radius:4px;padding:20px 24px;border-left:3px solid #d10000;">
           <p style="margin:0 0 8px;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#555555;">Tracking Info</p>
-          {$carrier ? "<p style='margin:0 0 4px;font-size:14px;color:#aaaaaa;'>Carrier: <span style='color:#f0f0f0;'>{$carrier}</span></p>" : ''}
-          {$number  ? "<p style='margin:0;font-size:14px;color:#aaaaaa;'>Tracking No: <span style='color:#f0f0f0;font-weight:700;'>{$number}</span></p>" : ''}
+          {$carrierRow}
+          {$numberRow}
         </div>
       </td></tr>
 HTML;
