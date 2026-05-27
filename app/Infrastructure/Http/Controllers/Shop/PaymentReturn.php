@@ -16,14 +16,17 @@ class PaymentReturn extends BaseController
     /** Gateway redirects user here on success — bounce to frontend order page. */
     public function success(string $token): \CodeIgniter\HTTP\ResponseInterface
     {
-        $siteBase = rtrim(env('NUXT_SITE_URL', 'http://localhost:3000'), '/');
-        return redirect()->to("{$siteBase}/shop/order/{$token}?ref=payment");
+        $siteBase   = rtrim(env('NUXT_SITE_URL', 'http://localhost:3000'), '/');
+        $redirectTo = "{$siteBase}/shop/order/{$token}?ref=payment";
+        log_message('info', "PaymentReturn::success — token={$token} siteBase={$siteBase} redirect={$redirectTo}");
+        return redirect()->to($redirectTo);
     }
 
     /** Gateway redirects user here on cancel — bounce to frontend checkout. */
     public function cancel(): \CodeIgniter\HTTP\ResponseInterface
     {
         $siteBase = rtrim(env('NUXT_SITE_URL', 'http://localhost:3000'), '/');
+        log_message('info', "PaymentReturn::cancel — siteBase={$siteBase}");
         return redirect()->to("{$siteBase}/checkout");
     }
 }

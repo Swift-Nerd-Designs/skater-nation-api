@@ -10,13 +10,19 @@ class ResendMailer implements MailerInterface
     public function sendOrderConfirmation(Order $order, array $items, array $settings, string $pdfBase64): void
     {
         $apiKey = env('RESEND_API_KEY', '');
-        if ($apiKey === '') return;
+        if ($apiKey === '') {
+            log_message('error', "ResendMailer: RESEND_API_KEY not set — order #{$order->id} confirmation skipped");
+            return;
+        }
 
         $siteName    = $settings['site_name']               ?? 'Our Shop';
         $fromEmail   = $settings['contact_email']           ?? '';
         $notifyEmail = $settings['shop_notification_email'] ?? '';
 
-        if ($fromEmail === '') return;
+        if ($fromEmail === '') {
+            log_message('error', "ResendMailer: contact_email setting is empty — order #{$order->id} confirmation skipped");
+            return;
+        }
 
         $currency = $order->currency;
         $fmt = new \NumberFormatter('en-ZA', \NumberFormatter::CURRENCY);
@@ -53,6 +59,7 @@ class ResendMailer implements MailerInterface
             $payload['bcc'] = [$notifyEmail];
         }
 
+        log_message('info', "ResendMailer: sending order confirmation #{$order->id} to {$order->email} from {$fromEmail}");
         $this->post($apiKey, $payload);
     }
 
@@ -136,13 +143,18 @@ class ResendMailer implements MailerInterface
                 'Authorization: Bearer ' . $apiKey,
                 'Content-Type: application/json',
             ],
+            CURLOPT_TIMEOUT        => 15,
         ]);
         $response = curl_exec($ch);
+        $curlErr  = curl_error($ch);
         $status   = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        curl_close($ch);
 
-        if ($status >= 400) {
+        if ($response === false || $curlErr !== '') {
+            log_message('error', "ResendMailer cURL error: {$curlErr}");
+        } elseif ($status >= 400) {
             log_message('error', "ResendMailer failed [{$status}]: {$response}");
+        } else {
+            log_message('info', "ResendMailer sent [{$status}]: {$response}");
         }
     }
 
