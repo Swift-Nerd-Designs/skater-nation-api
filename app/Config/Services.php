@@ -256,7 +256,11 @@ class Services extends BaseService
     public static function updateOrderStatusHandler(bool $getShared = true): \App\Application\Orders\Handlers\UpdateOrderStatusHandler
     {
         if ($getShared) return static::getSharedInstance('updateOrderStatusHandler');
-        return new \App\Application\Orders\Handlers\UpdateOrderStatusHandler(static::orderRepository());
+        return new \App\Application\Orders\Handlers\UpdateOrderStatusHandler(
+            static::orderRepository(),
+            static::mailer(),
+            static::settingsRepository(),
+        );
     }
 
     public static function submitReviewHandler(bool $getShared = true): \App\Application\Shop\Handlers\SubmitReviewHandler

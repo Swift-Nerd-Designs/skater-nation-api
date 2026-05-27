@@ -45,6 +45,35 @@ class ResendMailer implements MailerInterface
         $this->post($apiKey, $payload);
     }
 
+    public function sendOrderStatusUpdate(Order $order, string $newStatus, array $settings, array $extra = []): void
+    {
+        $apiKey = env('RESEND_API_KEY', '');
+        if ($apiKey === '') return;
+
+        $siteName  = $settings['site_name']    ?? 'Skater Nation';
+        $fromEmail = $settings['contact_email'] ?? '';
+        if ($fromEmail === '') return;
+
+        $labels = [
+            'processing' => ['Processing', "We've got your order and it's being packed."],
+            'shipped'    => ['Shipped', "Your order is on its way!"],
+            'delivered'  => ['Delivered', "Your order has been delivered. Enjoy!"],
+            'cancelled'  => ['Cancelled', "Your order has been cancelled."],
+        ];
+
+        [$statusLabel, $statusMessage] = $labels[$newStatus] ?? [ucfirst($newStatus), "Your order status has been updated."];
+
+        $payload = [
+            'from'    => "{$siteName} <{$fromEmail}>",
+            'to'      => [$order->email],
+            'subject' => "Order #{$order->id} — {$statusLabel}",
+            'html'    => $this->buildStatusUpdateHtml($order, $newStatus, $statusLabel, $statusMessage, $siteName, $extra),
+        ];
+
+        log_message('info', "ResendMailer: sending status update ({$newStatus}) for order #{$order->id} to {$order->email}");
+        $this->post($apiKey, $payload);
+    }
+
     public function sendLowStockAlert(array $product, array $settings): void
     {
         $apiKey = getenv('RESEND_API_KEY');
@@ -222,6 +251,84 @@ class ResendMailer implements MailerInterface
         <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="border-top:1px solid #1a1a1a;">
           <tr><td style="padding:24px 0 0;">
             <p style="margin:0 0 4px;font-size:11px;color:#333333;">&copy; {$year} Skater Nation. Born in Secunda.</p>
+            <p style="margin:0;font-size:11px;color:#333333;">snonline.co.za</p>
+          </td></tr>
+        </table>
+      </td></tr>
+
+    </table>
+  </td></tr>
+</table>
+</body>
+</html>
+HTML;
+    }
+
+    private function buildStatusUpdateHtml(
+        Order  $order,
+        string $status,
+        string $statusLabel,
+        string $statusMessage,
+        string $siteName,
+        array  $extra,
+    ): string {
+        $firstName = $this->e($order->firstName);
+        $orderId   = $order->id;
+        $year      = date('Y');
+
+        $accentColor = $status === 'cancelled' ? '#888888' : '#d10000';
+
+        $trackingBlock = '';
+        if ($status === 'shipped' && (!empty($extra['tracking_number']) || !empty($extra['tracking_carrier']))) {
+            $carrier = $this->e($extra['tracking_carrier'] ?? '');
+            $number  = $this->e($extra['tracking_number']  ?? '');
+            $trackingBlock = <<<HTML
+      <tr><td style="padding:24px 0 0;">
+        <div style="background-color:#111111;border-radius:4px;padding:20px 24px;border-left:3px solid #d10000;">
+          <p style="margin:0 0 8px;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#555555;">Tracking Info</p>
+          {$carrier ? "<p style='margin:0 0 4px;font-size:14px;color:#aaaaaa;'>Carrier: <span style='color:#f0f0f0;'>{$carrier}</span></p>" : ''}
+          {$number  ? "<p style='margin:0;font-size:14px;color:#aaaaaa;'>Tracking No: <span style='color:#f0f0f0;font-weight:700;'>{$number}</span></p>" : ''}
+        </div>
+      </td></tr>
+HTML;
+        }
+
+        return <<<HTML
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Order {$statusLabel}</title>
+</head>
+<body style="margin:0;padding:0;background-color:#0a0a0a;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;">
+<table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color:#0a0a0a;">
+  <tr><td align="center" style="padding:40px 16px;">
+    <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="580" style="max-width:580px;width:100%;">
+
+      <tr><td style="padding-bottom:32px;">
+        <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%">
+          <tr>
+            <td><span style="font-size:22px;font-weight:900;letter-spacing:-0.5px;color:#ffffff;text-transform:uppercase;">SKATER</span><span style="font-size:22px;font-weight:900;letter-spacing:-0.5px;color:#d10000;text-transform:uppercase;"> NATION</span></td>
+            <td style="text-align:right;"><span style="font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#aaaaaa;">Order #{$orderId}</span></td>
+          </tr>
+        </table>
+      </td></tr>
+
+      <tr><td style="height:3px;background-color:{$accentColor};">&nbsp;</td></tr>
+
+      <tr><td style="padding:32px 0 0;">
+        <p style="margin:0 0 8px;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:{$accentColor};">Order Update</p>
+        <h1 style="margin:0 0 12px;font-size:28px;font-weight:900;color:#ffffff;text-transform:uppercase;letter-spacing:-0.5px;line-height:1.1;">{$statusLabel}</h1>
+        <p style="margin:0;font-size:15px;color:#aaaaaa;line-height:1.6;">Hey {$firstName}, {$statusMessage}</p>
+      </td></tr>
+
+      {$trackingBlock}
+
+      <tr><td style="padding:40px 0 0;">
+        <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="border-top:1px solid #1a1a1a;">
+          <tr><td style="padding:24px 0 0;">
+            <p style="margin:0 0 4px;font-size:11px;color:#333333;">&copy; {$year} {$siteName}. Born in Secunda.</p>
             <p style="margin:0;font-size:11px;color:#333333;">snonline.co.za</p>
           </td></tr>
         </table>

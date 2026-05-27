@@ -19,6 +19,12 @@ interface MailerInterface
      */
     public function sendLowStockAlert(array $product, array $settings): void;
 
+    /**
+     * @param array<string,string> $settings
+     * @param array<string,string> $extra    e.g. ['tracking_carrier' => 'Courier Guy', 'tracking_number' => 'ABC123']
+     */
+    public function sendOrderStatusUpdate(Order $order, string $newStatus, array $settings, array $extra = []): void;
+
     public function sendContactEnquiry(
         string  $name,
         string  $email,

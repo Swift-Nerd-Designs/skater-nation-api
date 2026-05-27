@@ -3,14 +3,25 @@
 namespace App\Application\Orders\Handlers;
 
 use App\Application\Orders\Commands\UpdateOrderStatusCommand;
+use App\Application\Ports\MailerInterface;
+use App\Domain\Core\SettingsRepositoryInterface;
 use App\Domain\Orders\OrderRepositoryInterface;
 use App\Domain\Orders\OrderStatus;
 use App\Domain\Orders\OrderStatusLogEntry;
 
 final class UpdateOrderStatusHandler
 {
+    private const NOTIFY_STATUSES = [
+        OrderStatus::Processing,
+        OrderStatus::Shipped,
+        OrderStatus::Delivered,
+        OrderStatus::Cancelled,
+    ];
+
     public function __construct(
-        private readonly OrderRepositoryInterface $orders,
+        private readonly OrderRepositoryInterface  $orders,
+        private readonly MailerInterface           $mailer,
+        private readonly SettingsRepositoryInterface $settings,
     ) {}
 
     public function handle(UpdateOrderStatusCommand $cmd): void
@@ -50,5 +61,10 @@ final class UpdateOrderStatusHandler
             note:       $cmd->note ?: null,
             createdAt:  new \DateTimeImmutable(),
         ));
+
+        if (in_array($newStatus, self::NOTIFY_STATUSES, true)) {
+            $settings = $this->settings->getMany(['site_name', 'contact_email']);
+            $this->mailer->sendOrderStatusUpdate($order, $newStatus->value, $settings, $extra);
+        }
     }
 }
