@@ -92,11 +92,12 @@ class ResendMailer implements MailerInterface
         if ($apiKey === '') return;
 
         $siteName  = $settings['site_name']   ?? 'Our Shop';
-        $toEmail   = $settings['contact_email'] ?? '';
-        if ($toEmail === '') return;
+        $fromEmail = $settings['contact_email'] ?? '';
+        if ($fromEmail === '') return;
+        $toEmail   = $settings['contact_notification_email'] ?? $fromEmail;
 
         $payload = [
-            'from'     => "{$siteName} <{$toEmail}>",
+            'from'     => "{$siteName} <{$fromEmail}>",
             'reply_to' => $email,
             'to'       => [$toEmail],
             'subject'  => "New Enquiry from {$name}",

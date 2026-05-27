@@ -15,7 +15,7 @@ final class SendContactEnquiryHandler
 
     public function handle(SendContactEnquiryCommand $cmd): void
     {
-        $settings = $this->settings->getMany(['site_name', 'contact_email']);
+        $settings = $this->settings->getMany(['site_name', 'contact_email', 'contact_notification_email']);
 
         $this->mailer->sendContactEnquiry(
             $cmd->name,

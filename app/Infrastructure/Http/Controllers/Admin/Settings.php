@@ -9,7 +9,7 @@ use App\Infrastructure\Http\Controllers\BaseController;
 class Settings extends BaseController
 {
     private const ADMIN_SETTINGS_KEYS = [
-        'site_name', 'site_tagline', 'contact_email', 'contact_phone',
+        'site_name', 'site_tagline', 'contact_email', 'contact_notification_email', 'contact_phone',
         'contact_address', 'social_facebook', 'social_instagram',
         'social_linkedin', 'social_twitter', 'accreditations',
         'shop_enabled', 'shop_mode', 'shop_featured_product_slug',
