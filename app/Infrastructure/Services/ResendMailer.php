@@ -95,18 +95,12 @@ class ResendMailer implements MailerInterface
         $toEmail   = $settings['contact_email'] ?? '';
         if ($toEmail === '') return;
 
-        $phoneLine   = $phone   ? "\nPhone: {$phone}"     : '';
-        $serviceLine = $service ? "\nService: {$service}" : '';
-
-        $body  = "New enquiry from {$name} <{$email}>{$phoneLine}{$serviceLine}\n\n";
-        $body .= $message;
-
         $payload = [
-            'from'    => "{$siteName} <{$toEmail}>",
-            'to'      => [$toEmail],
-            'reply_to'=> $email,
-            'subject' => "New Enquiry from {$name}",
-            'text'    => $body,
+            'from'     => "{$siteName} <{$toEmail}>",
+            'reply_to' => $email,
+            'to'       => [$toEmail],
+            'subject'  => "New Enquiry from {$name}",
+            'html'     => $this->buildContactEnquiryHtml($name, $email, $phone, $service, $message, $siteName),
         ];
 
         $this->post($apiKey, $payload);
@@ -227,6 +221,107 @@ class ResendMailer implements MailerInterface
         <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="border-top:1px solid #1a1a1a;">
           <tr><td style="padding:24px 0 0;">
             <p style="margin:0 0 4px;font-size:11px;color:#333333;">&copy; {$year} Skater Nation. Born in Secunda.</p>
+            <p style="margin:0;font-size:11px;color:#333333;">snonline.co.za</p>
+          </td></tr>
+        </table>
+      </td></tr>
+
+    </table>
+  </td></tr>
+</table>
+</body>
+</html>
+HTML;
+    }
+
+    private function buildContactEnquiryHtml(
+        string  $name,
+        string  $email,
+        ?string $phone,
+        ?string $service,
+        string  $message,
+        string  $siteName,
+    ): string {
+        $eName    = $this->e($name);
+        $eEmail   = $this->e($email);
+        $eMessage = nl2br($this->e($message));
+        $ePhone   = $phone   ? $this->e($phone)   : null;
+        $eService = $service ? $this->e($service) : null;
+        $year     = date('Y');
+
+        $phoneRow = $ePhone
+            ? "<tr><td style=\"padding:8px 16px;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#555555;background-color:#111111;width:100px;\">Phone</td><td style=\"padding:8px 16px;font-size:14px;color:#f0f0f0;\">{$ePhone}</td></tr>"
+            : '';
+        $serviceRow = $eService
+            ? "<tr><td style=\"padding:8px 16px;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#555555;background-color:#111111;\">Service</td><td style=\"padding:8px 16px;font-size:14px;color:#f0f0f0;\">{$eService}</td></tr>"
+            : '';
+
+        return <<<HTML
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>New Enquiry</title>
+</head>
+<body style="margin:0;padding:0;background-color:#0a0a0a;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;">
+<table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color:#0a0a0a;">
+  <tr><td align="center" style="padding:40px 16px;">
+    <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="580" style="max-width:580px;width:100%;">
+
+      <!-- Header -->
+      <tr><td style="padding-bottom:32px;">
+        <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%">
+          <tr>
+            <td>
+              <span style="font-size:22px;font-weight:900;letter-spacing:-0.5px;color:#ffffff;text-transform:uppercase;">SKATER</span><span style="font-size:22px;font-weight:900;letter-spacing:-0.5px;color:#d10000;text-transform:uppercase;"> NATION</span>
+            </td>
+            <td style="text-align:right;">
+              <span style="font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#aaaaaa;">New Enquiry</span>
+            </td>
+          </tr>
+        </table>
+      </td></tr>
+
+      <!-- Red accent bar -->
+      <tr><td style="height:3px;background-color:#d10000;">&nbsp;</td></tr>
+
+      <!-- Heading -->
+      <tr><td style="padding:32px 0 24px;">
+        <p style="margin:0 0 8px;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#d10000;">Contact Form</p>
+        <h1 style="margin:0 0 12px;font-size:26px;font-weight:900;color:#ffffff;text-transform:uppercase;letter-spacing:-0.5px;line-height:1.1;">Message from {$eName}</h1>
+        <p style="margin:0;font-size:14px;color:#aaaaaa;line-height:1.6;">Someone reached out via the contact form. Reply directly to this email to respond.</p>
+      </td></tr>
+
+      <!-- Sender details -->
+      <tr><td style="background-color:#111111;border-radius:4px;overflow:hidden;margin-bottom:24px;">
+        <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="border-collapse:collapse;">
+          <tr>
+            <td style="padding:8px 16px;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#555555;background-color:#111111;border-bottom:1px solid #1a1a1a;width:100px;">Name</td>
+            <td style="padding:8px 16px;font-size:14px;color:#f0f0f0;border-bottom:1px solid #1a1a1a;">{$eName}</td>
+          </tr>
+          <tr>
+            <td style="padding:8px 16px;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#555555;background-color:#111111;border-bottom:1px solid #1a1a1a;">Email</td>
+            <td style="padding:8px 16px;font-size:14px;border-bottom:1px solid #1a1a1a;"><a href="mailto:{$eEmail}" style="color:#d10000;text-decoration:none;">{$eEmail}</a></td>
+          </tr>
+          {$phoneRow}
+          {$serviceRow}
+        </table>
+      </td></tr>
+
+      <!-- Message -->
+      <tr><td style="padding:24px 0 0;">
+        <p style="margin:0 0 12px;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#555555;">Message</p>
+        <div style="background-color:#111111;border-radius:4px;padding:20px 24px;border-left:3px solid #d10000;">
+          <p style="margin:0;font-size:14px;color:#f0f0f0;line-height:1.8;">{$eMessage}</p>
+        </div>
+      </td></tr>
+
+      <!-- Footer -->
+      <tr><td style="padding:40px 0 0;">
+        <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="border-top:1px solid #1a1a1a;">
+          <tr><td style="padding:24px 0 0;">
+            <p style="margin:0 0 4px;font-size:11px;color:#333333;">&copy; {$year} {$siteName}. Born in Secunda.</p>
             <p style="margin:0;font-size:11px;color:#333333;">snonline.co.za</p>
           </td></tr>
         </table>
