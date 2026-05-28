@@ -110,6 +110,12 @@ class Services extends BaseService
         );
     }
 
+    public static function whatsAppNotifier(bool $getShared = true): \App\Application\Ports\WhatsAppNotifierInterface
+    {
+        if ($getShared) return static::getSharedInstance('whatsAppNotifier');
+        return new \App\Infrastructure\Services\CallMeBotNotifier();
+    }
+
     public static function invoicePdf(bool $getShared = true): \App\Application\Ports\InvoicePdfInterface
     {
         if ($getShared) return static::getSharedInstance('invoicePdf');
@@ -312,6 +318,7 @@ class Services extends BaseService
             static::settingsRepository(),
             static::invoicePdf(),
             static::mailer(),
+            static::whatsAppNotifier(),
         );
     }
 

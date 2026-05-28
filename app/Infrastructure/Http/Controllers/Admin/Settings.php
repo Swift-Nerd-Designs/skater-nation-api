@@ -22,6 +22,7 @@ class Settings extends BaseController
         'shop_ozow_enabled', 'shop_ozow_site_code',
         'shop_ozow_private_key', 'shop_ozow_api_key',
         'shop_wishlist_enabled',
+        'whatsapp_notify_phone', 'whatsapp_notify_apikey',
         'shop_all_products_banner',
         // Appearance
         'hero_variant', 'footer_variant', 'cta_headline',
@@ -55,6 +56,7 @@ class Settings extends BaseController
         'shop_payfast_passphrase',
         'shop_ozow_private_key',
         'shop_ozow_api_key',
+        'whatsapp_notify_apikey',
     ];
 
     public function index(): \CodeIgniter\HTTP\ResponseInterface

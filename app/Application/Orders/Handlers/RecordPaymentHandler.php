@@ -5,6 +5,7 @@ namespace App\Application\Orders\Handlers;
 use App\Application\Orders\Commands\RecordPaymentCommand;
 use App\Application\Ports\InvoicePdfInterface;
 use App\Application\Ports\MailerInterface;
+use App\Application\Ports\WhatsAppNotifierInterface;
 use App\Domain\Core\SettingsRepositoryInterface;
 use App\Domain\Orders\OrderRepositoryInterface;
 use App\Domain\Orders\OrderStatus;
@@ -13,10 +14,11 @@ use App\Domain\Orders\OrderStatusLogEntry;
 final class RecordPaymentHandler
 {
     public function __construct(
-        private readonly OrderRepositoryInterface  $orders,
+        private readonly OrderRepositoryInterface    $orders,
         private readonly SettingsRepositoryInterface $settings,
-        private readonly InvoicePdfInterface       $invoicePdf,
-        private readonly MailerInterface           $mailer,
+        private readonly InvoicePdfInterface         $invoicePdf,
+        private readonly MailerInterface             $mailer,
+        private readonly WhatsAppNotifierInterface   $whatsapp,
     ) {}
 
     public function handle(RecordPaymentCommand $cmd): void
@@ -44,6 +46,7 @@ final class RecordPaymentHandler
             $settings = $this->settings->getMany([
                 'site_name', 'contact_email', 'shop_notification_email',
                 'shop_currency', 'shop_vat_enabled', 'shop_vat_rate',
+                'whatsapp_notify_phone', 'whatsapp_notify_apikey',
             ]);
 
             // Map order items to raw arrays the mailer/PDF expect
@@ -53,8 +56,9 @@ final class RecordPaymentHandler
             $pdfBase64 = base64_encode($pdfBytes);
 
             $this->mailer->sendOrderConfirmation($order, $itemRows, $settings, $pdfBase64);
+            $this->whatsapp->notifyNewOrder($order, $itemRows, $settings);
         } catch (\Throwable $e) {
-            log_message('error', 'RecordPaymentHandler: confirmation email failed: ' . $e->getMessage());
+            log_message('error', 'RecordPaymentHandler: post-payment notifications failed: ' . $e->getMessage());
         }
     }
 }
