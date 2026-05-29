@@ -33,6 +33,8 @@ class Settings extends BaseController
         'shop_ozow_api_key',
         'shop_wishlist_enabled',
         'shop_guest_checkout',
+        'whatsapp_notify_phone',
+        'whatsapp_notify_apikey',
     ];
 
     private const SENSITIVE_KEYS = [
@@ -40,6 +42,7 @@ class Settings extends BaseController
         'shop_payfast_passphrase',
         'shop_ozow_private_key',
         'shop_ozow_api_key',
+        'whatsapp_notify_apikey',
     ];
 
     public function index(): \CodeIgniter\HTTP\ResponseInterface
