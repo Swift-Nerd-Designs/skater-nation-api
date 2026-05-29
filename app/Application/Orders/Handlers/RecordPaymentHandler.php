@@ -46,7 +46,7 @@ final class RecordPaymentHandler
             $settings = $this->settings->getMany([
                 'site_name', 'contact_email', 'shop_notification_email',
                 'shop_currency', 'shop_vat_enabled', 'shop_vat_rate',
-                'whatsapp_notify_phone', 'whatsapp_notify_apikey',
+                'whatsapp_notify_phone', 'whatsapp_notify_apikey', 'whatsapp_notify_group_id',
             ]);
 
             // Map order items to raw arrays the mailer/PDF expect

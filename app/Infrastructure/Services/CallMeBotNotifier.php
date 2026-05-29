@@ -9,11 +9,12 @@ class CallMeBotNotifier implements WhatsAppNotifierInterface
 {
     public function notifyNewOrder(Order $order, array $items, array $settings): void
     {
-        $phone  = $settings['whatsapp_notify_phone']  ?? '';
-        $apiKey = $settings['whatsapp_notify_apikey'] ?? '';
+        $phone   = $settings['whatsapp_notify_phone']    ?? '';
+        $apiKey  = $settings['whatsapp_notify_apikey']  ?? '';
+        $groupId = $settings['whatsapp_notify_group_id'] ?? '';
 
-        if ($phone === '' || $apiKey === '') {
-            log_message('info', 'CallMeBotNotifier: whatsapp_notify_phone or apikey not set — skipping');
+        if ($apiKey === '' || ($phone === '' && $groupId === '')) {
+            log_message('info', 'CallMeBotNotifier: apikey or target (phone/group_id) not set — skipping');
             return;
         }
 
@@ -36,11 +37,20 @@ class CallMeBotNotifier implements WhatsAppNotifierInterface
             'Gateway: ' . ucfirst($order->gateway ?? 'unknown'),
         ]);
 
-        $url = 'https://api.callmebot.com/whatsapp.php?' . http_build_query([
-            'phone'  => $phone,
-            'text'   => $message,
-            'apikey' => $apiKey,
-        ]);
+        // Prefer group over personal if group ID is configured
+        if ($groupId !== '') {
+            $url = 'https://api.callmebot.com/whatsapp-group.php?' . http_build_query([
+                'groupid' => $groupId,
+                'text'    => $message,
+                'apikey'  => $apiKey,
+            ]);
+        } else {
+            $url = 'https://api.callmebot.com/whatsapp.php?' . http_build_query([
+                'phone'  => $phone,
+                'text'   => $message,
+                'apikey' => $apiKey,
+            ]);
+        }
 
         $ch = curl_init($url);
         curl_setopt_array($ch, [

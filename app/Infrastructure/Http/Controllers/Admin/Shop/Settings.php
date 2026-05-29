@@ -35,6 +35,7 @@ class Settings extends BaseController
         'shop_guest_checkout',
         'whatsapp_notify_phone',
         'whatsapp_notify_apikey',
+        'whatsapp_notify_group_id',
     ];
 
     private const SENSITIVE_KEYS = [
