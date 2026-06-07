@@ -1,0 +1,6 @@
+site_name: Skater Nation API
+site_description: Skater Nation REST API built with CodeIgniter 4
+nav:
+  - Home: index.md
+plugins:
+  - techdocs-core
